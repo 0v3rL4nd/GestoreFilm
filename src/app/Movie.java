@@ -1,4 +1,4 @@
-package dominio;
+package app;
 
 // --- CLASSE PRINCIPALE ---
 class Movie {
@@ -29,6 +29,15 @@ class Movie {
     public String getTitle() { return title; }
     public int getYear() { return year; }
     public int getRating() { return rating; }
+    public String getDirector() { return director; }
+
+    public void restoreStateFromData(String stateName) {
+        switch (stateName) {
+            case "Visto": this.state = new WatchedState(); break;
+            case "In Visione": this.state = new WatchingState(); break;
+            case "Da Vedere": default: this.state = new ToWatchState(); break;
+        }
+    }
 
     // --- BUILDER ---
     public static class MovieBuilder {

@@ -1,4 +1,4 @@
-package dominio;
+package app;
 
 class WatchingState implements MovieState {
     public void handlePlay(Movie context) {

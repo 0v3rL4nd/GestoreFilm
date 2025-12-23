@@ -1,4 +1,4 @@
-package dominio;
+package app;
 
 // --- STATE ---
 // Interfaccia per lo stato del film
