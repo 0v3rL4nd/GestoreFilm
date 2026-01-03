@@ -158,7 +158,7 @@ public class MovieSwingApp extends JFrame implements Observer {
             // Nota: per pulizia, l'oggetto Movie dovrebbe esporre getters migliori
             Object[] row = {
                     m.getTitle(),
-                    "N/A", // Se non hai aggiunto il getter Director in Movie, aggiungilo!
+                    m.getDirector(), // Se non hai aggiunto il getter Director in Movie, aggiungilo!
                     m.getYear(),
                     m.getRating(),
                     m.toString().substring(m.toString().lastIndexOf("Stato:")) // Hack veloce per demo

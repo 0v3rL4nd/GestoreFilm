@@ -65,4 +65,11 @@ class MovieLibrary {
     public List<Movie> getMovies() {
         return movies;
     }
+
+    // Metodo helper per i test
+    public void clearDataForTesting() {
+        movies.clear();
+        // Non cancelliamo gli observer per non rompere i collegamenti,
+        // ma in un test unitario puro resetteremmo anche instance a null via reflection se necessario.
+    }
 }
