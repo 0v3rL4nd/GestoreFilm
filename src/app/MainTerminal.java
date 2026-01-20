@@ -2,7 +2,7 @@ package app;
 
 import java.util.List;
 
-public class Main {
+public class MainTerminal {
     public static void main(String[] args) {
         // 1. Inizializzazione Sistema
         MovieSystemFacade facade = new MovieSystemFacade();

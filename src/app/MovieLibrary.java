@@ -70,6 +70,5 @@ class MovieLibrary {
     public void clearDataForTesting() {
         movies.clear();
         // Non cancelliamo gli observer per non rompere i collegamenti,
-        // ma in un test unitario puro resetteremmo anche instance a null via reflection se necessario.
     }
 }

@@ -16,17 +16,17 @@ public class MovieSwingApp extends JFrame implements Observer {
     private MovieSystemFacade facade;
 
     public MovieSwingApp() {
-        // 1. Inizializzazione Facade e Registrazione Observer
+        // Inizializzazione Facade e Registrazione Observer
         facade = new MovieSystemFacade();
         facade.registerView(this); // La finestra osserva il sistema!
 
-        // 2. Setup della Finestra
-        setTitle("Gestore Collezione Film (GoF Patterns)");
+        // Setup della Finestra
+        setTitle("Gestore Collezione Film");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // 3. Creazione Pannelli
+        // Creazione Pannelli
         createInputPanel();
         createTablePanel();
         createControlPanel();
@@ -37,7 +37,7 @@ public class MovieSwingApp extends JFrame implements Observer {
 
     private void createInputPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 5, 10, 10));
-        panel.setBorder(BorderFactory.createTitledBorder("Nuovo Film (Builder Pattern)"));
+        panel.setBorder(BorderFactory.createTitledBorder("Nuovo Film"));
 
         txtTitle = new JTextField();
         txtDirector = new JTextField();
@@ -81,7 +81,7 @@ public class MovieSwingApp extends JFrame implements Observer {
 
     private void createControlPanel() {
         JPanel panel = new JPanel(new FlowLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Controlli (Command & Strategy)"));
+        panel.setBorder(BorderFactory.createTitledBorder("Controlli"));
 
         // Pulsante Rimuovi
         JButton btnRemove = new JButton("Rimuovi Selezionato");
