@@ -21,9 +21,8 @@ class JsonStorageStrategy implements StorageStrategy {
             json.append("    \"director\": \"").append(escape(m.getDirector())).append("\",\n");
             json.append("    \"year\": ").append(m.getYear()).append(",\n");
             json.append("    \"rating\": ").append(m.getRating()).append(",\n");
+
             // Salviamo il nome dello stato per poterlo ripristinare dopo
-            // Nota: m.toString() contiene lo stato, ma è meglio avere un metodo getStateName() pulito in MovieState
-            // Per ora usiamo un trucco sporco o assumiamo che MovieState abbia toString()
             json.append("    \"state\": \"").append(extractStateName(m)).append("\"\n");
 
             json.append("  }");
@@ -128,9 +127,6 @@ class JsonStorageStrategy implements StorageStrategy {
 
     // Helper per ottenere il nome dello stato usando Reflection o un cast (per evitare modifiche drastiche alle interfacce sopra)
     private String extractStateName(Movie m) {
-        // Qui sfruttiamo il toString() del film che abbiamo definito prima: "... | Stato: Visto"
-        // Oppure possiamo chiamare il metodo getStateName se lo abbiamo esposto.
-        // Assumiamo che il toString sia: "'Title' (Year) ... | Stato: NomeStato"
         String s = m.toString();
         return s.substring(s.lastIndexOf("Stato: ") + 7);
     }
