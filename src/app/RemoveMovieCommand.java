@@ -6,7 +6,11 @@ class RemoveMovieCommand implements Command {
 
     public RemoveMovieCommand(Movie movie) {
         this.movie = movie;
+        this.library = MovieLibrary.getInstance();
+
     }
+
+
 
     public void execute() {
 

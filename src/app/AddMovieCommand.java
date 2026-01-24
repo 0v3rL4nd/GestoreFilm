@@ -6,7 +6,9 @@ class AddMovieCommand implements Command {
 
     public AddMovieCommand(Movie movie) {
         this.movie = movie;
+        this.library = MovieLibrary.getInstance();
     }
+
 
     public void execute() {
 

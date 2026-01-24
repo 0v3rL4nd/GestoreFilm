@@ -86,9 +86,13 @@ class MovieLibrary {
         return movies;
     }
 
-    // Metodo helper per i test
-    public void clearDataForTesting() {
-        movies.clear();
-        // Non cancelliamo gli observer per non rompere i collegamenti,
+    // Metodo helper per iniettare la strategia dummy durante i test
+    public void setStorageStrategy(StorageStrategy strategy) {
+        this.storageStrategy = strategy;
+    }
+
+    // Metodo helper per pulire il Singleton tra un test e l'altro
+    public void resetForTesting() {
+        this.movies.clear();
     }
 }

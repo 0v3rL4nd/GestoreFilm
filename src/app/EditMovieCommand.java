@@ -10,6 +10,8 @@ public class EditMovieCommand implements Command{
     //Riferimento per notificare gli observer
     private MovieLibrary library;
 
+
+
     public EditMovieCommand(Movie movieToEdit, String newTitle, String newDirector, int newYear, int newRating) {
         this.movieToEdit = movieToEdit;
         this.newTitle = newTitle;

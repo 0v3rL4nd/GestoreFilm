@@ -67,9 +67,10 @@ class Movie {
                 throw new IllegalArgumentException("Il titolo non può essere vuoto");
             if( director == null || director.trim().isEmpty())
                 throw new IllegalArgumentException("Il regista non può essere vuoto");
-            // 1888 vincolo di sanità storica
-            if( year > Year.now().getValue() || year < 1888 )
+            if( year > Year.now().getValue() )
                 throw new IllegalArgumentException("L'anno non è valido");
+            if( year < 1888)
+                throw new IllegalArgumentException("L'anno preclude il vincolo di sanità storica");
             return new Movie(this);
         }
     }
