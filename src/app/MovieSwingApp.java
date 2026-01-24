@@ -11,123 +11,230 @@ public class MovieSwingApp extends JFrame implements Observer {
     // Componenti UI
     private JTable table;
     private DefaultTableModel tableModel;
-    private JTextField txtTitle, txtDirector, txtYear;
+    private JTextField txtTitle, txtDirector, txtYear, txtSearch;
     private JComboBox<Integer> comboRating;
+
+    // Riferimenti logici
     private MovieSystemFacade facade;
+    private Movie selectedMovieForEdit = null; // Per tracciare la modifica
+    private JButton btnAction; // Pulsante dinamico (Aggiungi/Salva Modifiche)
 
     public MovieSwingApp() {
         // Inizializzazione Facade e Registrazione Observer
         facade = new MovieSystemFacade();
-        facade.registerView(this); // La finestra osserva il sistema!
+        facade.registerView(this);
 
         // Setup della Finestra
-        setTitle("Gestore Collezione Film");
-        setSize(800, 600);
+        setTitle("Gestore Collezione Film (GoF Patterns)");
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Creazione Pannelli
-        createInputPanel();
-        createTablePanel();
-        createControlPanel();
+        // --- GESTIONE LAYOUT COMPLESSO ---
+        // Creiamo un pannello "Wrapper" per mettere sia la Ricerca che l'Input in alto
+        JPanel northContainer = new JPanel(new BorderLayout());
 
-        // Carica dati iniziali (se presenti)
+        JPanel searchPanel = createTopPanel(); // Pannello Ricerca
+        JPanel inputPanel = createInputPanel(); // Pannello Inserimento
+
+        northContainer.add(searchPanel, BorderLayout.NORTH);
+        northContainer.add(inputPanel, BorderLayout.CENTER);
+
+        // Aggiungiamo il wrapper al frame principale
+        add(northContainer, BorderLayout.NORTH);
+
+        createTablePanel();   // Tabella al Centro
+        createControlPanel(); // Controlli in Basso
+
+        // Carica dati iniziali
         refreshTable(MovieLibrary.getInstance().getMovies());
     }
 
-    private void createInputPanel() {
-        JPanel panel = new JPanel(new GridLayout(1, 5, 10, 10));
-        panel.setBorder(BorderFactory.createTitledBorder("Nuovo Film"));
+    // Creazione Pannello Ricerca
+    private JPanel createTopPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panel.setBorder(BorderFactory.createTitledBorder("Ricerca"));
 
-        txtTitle = new JTextField();
-        txtDirector = new JTextField();
-        txtYear = new JTextField();
+        txtSearch = new JTextField(20);
+        JButton btnSearch = new JButton("Cerca");
+        JButton btnReset = new JButton("Reset");
+
+        // LOGICA RICERCA
+        btnSearch.addActionListener(e -> {
+            String query = txtSearch.getText();
+            List<Movie> results = facade.searchMovies(query);
+            refreshTable(results); // Aggiorna la vista con i risultati filtrati
+        });
+
+        btnReset.addActionListener(e -> {
+            txtSearch.setText("");
+            refreshTable(MovieLibrary.getInstance().getMovies());
+        });
+
+        panel.add(new JLabel("Cerca (Titolo/Regista/Anno):"));
+        panel.add(txtSearch);
+        panel.add(btnSearch);
+        panel.add(btnReset);
+
+        return panel;
+    }
+
+    // Creazione Pannello Inserimento/Modifica
+    private JPanel createInputPanel() {
+        JPanel panel = new JPanel(new GridLayout(2, 1));
+        // Uso un layout a due righe per mettere pulsanti sotto i campi
+
+        JPanel fieldsPanel = new JPanel(new FlowLayout());
+        txtTitle = new JTextField(15);
+        txtDirector = new JTextField(15);
+        txtYear = new JTextField(6);
         comboRating = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5});
-        JButton btnAdd = new JButton("Aggiungi");
 
-        // Stile
-        panel.add(new JLabel("Titolo:")); panel.add(txtTitle);
-        panel.add(new JLabel("Regista:")); panel.add(txtDirector);
-        panel.add(new JLabel("Anno:")); panel.add(txtYear);
-        panel.add(new JLabel("Voto:")); panel.add(comboRating);
-        panel.add(btnAdd);
+        fieldsPanel.add(new JLabel("Titolo:")); fieldsPanel.add(txtTitle);
+        fieldsPanel.add(new JLabel("Regista:")); fieldsPanel.add(txtDirector);
+        fieldsPanel.add(new JLabel("Anno:")); fieldsPanel.add(txtYear);
+        fieldsPanel.add(new JLabel("Voto:")); fieldsPanel.add(comboRating);
 
-        // AZIONE: Command Pattern
-        btnAdd.addActionListener(e -> {
-            try {
-                String title = txtTitle.getText();
-                String director = txtDirector.getText();
-                int year = Integer.parseInt(txtYear.getText());
-                int rating = (int) comboRating.getSelectedItem();
+        JPanel buttonsPanel = new JPanel(new FlowLayout());
+        btnAction = new JButton("Aggiungi Nuovo Film");
+        JButton btnClear = new JButton("Pulisci / Annulla");
 
-                facade.addNewMovie(title, director, year, rating);
+        // AZIONE PRINCIPALE (Gestisce sia Aggiunta che Modifica)
+        btnAction.addActionListener(e -> {
+            String title = txtTitle.getText();
+            String director = txtDirector.getText();
+            String year = txtYear.getText();
+            int rating = (int) comboRating.getSelectedItem();
 
-                // Pulisci campi
-                txtTitle.setText(""); txtDirector.setText(""); txtYear.setText("");
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "L'anno deve essere un numero!");
+            String errorMsg;
+
+            if (selectedMovieForEdit == null) {
+                // MODALITÀ: AGGIUNTA
+                errorMsg = facade.addNewMovie(title, director, year, rating);
+            } else {
+                // MODALITÀ: MODIFICA
+                errorMsg = facade.editMovie(selectedMovieForEdit, title, director, year, rating);
+            }
+
+            if (errorMsg != null) {
+                // Errore di validazione (dal Builder o dalla Facade)
+                JOptionPane.showMessageDialog(this, "Errore: " + errorMsg, "Attenzione", JOptionPane.ERROR_MESSAGE);
+            } else {
+                // Successo
+                clearInputs();
             }
         });
 
-        add(panel, BorderLayout.NORTH);
+        btnClear.addActionListener(e -> clearInputs());
+
+        buttonsPanel.add(btnAction);
+        buttonsPanel.add(btnClear);
+
+        panel.add(fieldsPanel);
+        panel.add(buttonsPanel);
+        panel.setBorder(BorderFactory.createTitledBorder("Gestione Film (Builder & Command)"));
+
+        return panel;
     }
 
     private void createTablePanel() {
         String[] columns = {"Titolo", "Regista", "Anno", "Voto", "Stato"};
-        tableModel = new DefaultTableModel(columns, 0);
+
+        // Rendiamo le celle non modificabili direttamente
+        tableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
         table = new JTable(tableModel);
         add(new JScrollPane(table), BorderLayout.CENTER);
     }
 
     private void createControlPanel() {
         JPanel panel = new JPanel(new FlowLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Controlli"));
+        panel.setBorder(BorderFactory.createTitledBorder("Pannello di Controllo"));
 
-        // Pulsante Rimuovi
+        JButton btnEdit = new JButton("Modifica Selezionato");
         JButton btnRemove = new JButton("Rimuovi Selezionato");
+        JButton btnPlay = new JButton("Play / Cambia Stato");
+
+        // --- LOGICA MODIFICA ---
+        btnEdit.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                String title = (String) tableModel.getValueAt(row, 0);
+                Movie m = findMovieByTitle(title);
+                if (m != null) {
+                    // Carica i dati nei campi
+                    selectedMovieForEdit = m;
+                    txtTitle.setText(m.getTitle());
+                    txtDirector.setText(m.getDirector());
+                    txtYear.setText(String.valueOf(m.getYear()));
+                    comboRating.setSelectedItem(m.getRating());
+
+                    // Cambia testo pulsante per feedback utente
+                    btnAction.setText("Salva Modifiche a '" + m.getTitle() + "'");
+                    btnAction.setBackground(Color.ORANGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Seleziona un film da modificare.");
+            }
+        });
+
+        // --- LOGICA RIMOZIONE ---
         btnRemove.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0) {
                 String title = (String) tableModel.getValueAt(row, 0);
-                // In un caso reale useremmo l'ID, qui cerchiamo per titolo per semplicità
                 Movie m = findMovieByTitle(title);
-                if (m != null) facade.removeMovie(m);
+
+                int confirm = JOptionPane.showConfirmDialog(this, "Sei sicuro di voler rimuovere '" + title + "'?");
+                if (m != null && confirm == JOptionPane.YES_OPTION) {
+                    facade.removeMovie(m);
+                    clearInputs(); // Reset se stavo modificando proprio quello
+                }
             }
         });
 
-        // Pulsante Play (State Pattern)
-        JButton btnPlay = new JButton("Play / Cambia Stato");
+        // --- LOGICA PLAY (State Pattern) ---
         btnPlay.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0) {
                 String title = (String) tableModel.getValueAt(row, 0);
                 Movie m = findMovieByTitle(title);
                 if (m != null) {
-                    m.play(); // State Pattern in azione
-                    refreshTable(MovieLibrary.getInstance().getMovies()); // Forza refresh per vedere cambio stato
+                    facade.advanceState(m);
+                }
+                else{
+                    JOptionPane.showMessageDialog(this, "Seleziona un film per cambiare lo stato");
                 }
             }
+
         });
 
-        // Strategie di Ordinamento
-        JRadioButton rbTitle = new JRadioButton("Ordina per Titolo");
-        JRadioButton rbYear = new JRadioButton("Ordina per Anno");
+        // --- STRATEGIE DI ORDINAMENTO ---
+        JRadioButton rbTitle = new JRadioButton("Titolo");
+        JRadioButton rbYear = new JRadioButton("Anno");
         ButtonGroup group = new ButtonGroup();
         group.add(rbTitle); group.add(rbYear);
 
         rbTitle.addActionListener(e -> facade.changeSortOrder(new TitleSortStrategy()));
+
         rbYear.addActionListener(e -> facade.changeSortOrder(new WatchedState.YearSortStrategy()));
 
-        // Pulsante Salva
         JButton btnSave = new JButton("Salva su Disco");
         btnSave.addActionListener(e -> {
             facade.triggerSave();
-            JOptionPane.showMessageDialog(this, "Collezione salvata!");
+            JOptionPane.showMessageDialog(this, "Collezione salvata correttamente!");
         });
 
+        panel.add(btnEdit);
         panel.add(btnRemove);
         panel.add(btnPlay);
         panel.add(new JSeparator(SwingConstants.VERTICAL));
+        panel.add(new JLabel("Ordina:"));
         panel.add(rbTitle);
         panel.add(rbYear);
         panel.add(new JSeparator(SwingConstants.VERTICAL));
@@ -136,7 +243,18 @@ public class MovieSwingApp extends JFrame implements Observer {
         add(panel, BorderLayout.SOUTH);
     }
 
-    // Helper per trovare il film dalla lista (per semplicità della demo)
+    // Helper: Reset interfaccia
+    private void clearInputs() {
+        txtTitle.setText("");
+        txtDirector.setText("");
+        txtYear.setText("");
+        comboRating.setSelectedIndex(0);
+        selectedMovieForEdit = null;
+        btnAction.setText("Aggiungi Nuovo Film");
+        btnAction.setBackground(null); // Reset colore
+    }
+
+    // Helper: Trova film (In un'app reale userei l'ID o l'oggetto stesso nella JTable)
     private Movie findMovieByTitle(String title) {
         for (Movie m : MovieLibrary.getInstance().getMovies()) {
             if (m.getTitle().equals(title)) return m;
@@ -144,31 +262,35 @@ public class MovieSwingApp extends JFrame implements Observer {
         return null;
     }
 
-    // --- METODO OBSERVER ---
-    // Questo metodo viene chiamato automaticamente dalla Library quando i dati cambiano
     @Override
     public void update(List<Movie> movies) {
         refreshTable(movies);
     }
 
     private void refreshTable(List<Movie> movies) {
-        tableModel.setRowCount(0); // Pulisce la tabella
+        tableModel.setRowCount(0); // Pulisce
+
         for (Movie m : movies) {
-            // Estrapoliamo lo stato come stringa dal toString o getter
-            // Nota: per pulizia, l'oggetto Movie dovrebbe esporre getters migliori
             Object[] row = {
                     m.getTitle(),
-                    m.getDirector(), // Se non hai aggiunto il getter Director in Movie, aggiungilo!
+                    m.getDirector(),
                     m.getYear(),
                     m.getRating(),
-                    m.toString().substring(m.toString().lastIndexOf("Stato:")) // Hack veloce per demo
+                    m.getStateName() // <--- ORA USIAMO IL METODO PULITO, NIENTE PIÙ SUBSTRING
             };
             tableModel.addRow(row);
         }
     }
 
+    private String extractState(Movie m) {
+        String s = m.toString();
+        if(s.contains("Stato:")) {
+            return s.substring(s.lastIndexOf("Stato:"));
+        }
+        return "N/A";
+    }
+
     public static void main(String[] args) {
-        // Avvia l'interfaccia nel thread grafico
         SwingUtilities.invokeLater(() -> {
             new MovieSwingApp().setVisible(true);
         });

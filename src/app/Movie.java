@@ -1,5 +1,8 @@
 package app;
 
+import java.time.Year;
+import java.util.GregorianCalendar;
+
 // --- CLASSE PRINCIPALE ---
 class Movie {
     private String title;
@@ -17,6 +20,12 @@ class Movie {
         this.state = new ToWatchState(); // Stato default
     }
 
+    //SETTERS
+    public void setTitle(String title) { this.title = title;}
+    public void setDirector(String director) {this.director = director;}
+    public void setYear(int year) {this.year = year;}
+    public void setRating(int rating) {this.rating = rating;}
+
     public void setState(MovieState state) { this.state = state; }
     public void play() { state.handlePlay(this); }
 
@@ -26,10 +35,12 @@ class Movie {
                 title, year, director, rating, state.getStateName());
     }
 
+    //GETTERS
     public String getTitle() { return title; }
     public int getYear() { return year; }
     public int getRating() { return rating; }
     public String getDirector() { return director; }
+    public String getStateName() { return state.getStateName(); }
 
     public void restoreStateFromData(String stateName) {
         switch (stateName) {
@@ -51,7 +62,14 @@ class Movie {
         public MovieBuilder setYear(int year) { this.year = year; return this; }
         public MovieBuilder setRating(int rating) { this.rating = rating; return this; }
 
-        public Movie build() {
+        public Movie build() throws IllegalArgumentException {
+            if ( title == null || title.trim().isEmpty())
+                throw new IllegalArgumentException("Il titolo non può essere vuoto");
+            if( director == null || director.trim().isEmpty())
+                throw new IllegalArgumentException("Il regista non può essere vuoto");
+            // 1888 vincolo di sanità storica
+            if( year > Year.now().getValue() || year < 1888 )
+                throw new IllegalArgumentException("L'anno non è valido");
             return new Movie(this);
         }
     }

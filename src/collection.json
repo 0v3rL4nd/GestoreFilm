@@ -1,0 +1,51 @@
+[
+  {
+    "title": "Pulp Fiction",
+    "director": "Quentin Tarantino",
+    "year": 1994,
+    "rating": 5,
+    "state": "Visto"
+  },
+  {
+    "title": "La Città Incantata",
+    "director": "Hayao Miyazaki",
+    "year": 2001,
+    "rating": 5,
+    "state": "Da Vedere"
+  },
+  {
+    "title": "Parasite",
+    "director": "Bong Joon-ho",
+    "year": 2019,
+    "rating": 4,
+    "state": "Visto"
+  },
+  {
+    "title": "Interstellar",
+    "director": "Christopher Nolan",
+    "year": 2014,
+    "rating": 5,
+    "state": "Visto"
+  },
+  {
+    "title": "Il Buono, il Brutto, il Cattivo",
+    "director": "Sergio Leone",
+    "year": 1966,
+    "rating": 5,
+    "state": "Visto"
+  },
+  {
+    "title": "Matrix",
+    "director": "Lana & Lilly Wachowski",
+    "year": 1999,
+    "rating": 4,
+    "state": "Da Vedere"
+  },
+  {
+    "title": "The Grand Budapest Hotel",
+    "director": "Wes Anderson",
+    "year": 2014,
+    "rating": 3,
+    "state": "Da Vedere"
+  }
+]

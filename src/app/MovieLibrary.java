@@ -29,6 +29,26 @@ class MovieLibrary {
         }
     }
 
+    public List<Movie> search(String query) {
+        List<Movie> results = new ArrayList<>();
+        if (query == null || query.trim().isEmpty()) {
+            return new ArrayList<>(movies); // Ritorna tutto se query vuota
+        }
+
+        String lowerQuery = query.toLowerCase();
+
+        for (Movie m : movies) {
+            // Cerca per Titolo, Regista o Anno (convertito a stringa)
+            if (m.getTitle().toLowerCase().contains(lowerQuery) ||
+                    m.getDirector().toLowerCase().contains(lowerQuery) ||
+                    String.valueOf(m.getYear()).contains(lowerQuery)) {
+
+                results.add(m);
+            }
+        }
+        return results;
+    }
+
     public static synchronized MovieLibrary getInstance() {
         if (instance == null) instance = new MovieLibrary();
         return instance;
@@ -58,7 +78,7 @@ class MovieLibrary {
         observers.add(o);
     }
 
-    private void notifyObservers() {
+    public void notifyObservers() {
         for (Observer o : observers) o.update(movies);
     }
 
