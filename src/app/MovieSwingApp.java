@@ -25,7 +25,7 @@ public class MovieSwingApp extends JFrame implements Observer {
         facade.registerView(this);
 
         // Setup della Finestra
-        setTitle("Gestore Collezione Film (GoF Patterns)");
+        setTitle("Gestore Collezione Film");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -132,7 +132,7 @@ public class MovieSwingApp extends JFrame implements Observer {
 
         panel.add(fieldsPanel);
         panel.add(buttonsPanel);
-        panel.setBorder(BorderFactory.createTitledBorder("Gestione Film (Builder & Command)"));
+        panel.setBorder(BorderFactory.createTitledBorder("Gestione Film"));
 
         return panel;
     }
